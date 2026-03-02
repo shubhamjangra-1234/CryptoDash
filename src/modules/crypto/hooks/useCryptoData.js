@@ -1,117 +1,257 @@
 import { useQuery } from '@tanstack/react-query';
-import { getTopCryptos, getCryptoDetails, searchCryptos, getGlobalMarketData, getPriceHistory } from '../services';
+import { cryptoService } from '../services/cryptoService';
 
-// Hook for fetching top cryptocurrencies
-export const useTopCryptos = (limit = 100, sortBy = 'market_cap_desc') => {
+// Hook for fetching markets data
+export const useMarkets = (params = {}) => {
   return useQuery({
-    queryKey: ['topCryptos', limit, sortBy],
-    queryFn: () => getTopCryptos(limit, import.meta.env.VITE_CURRENCY || 'usd', sortBy),
+    queryKey: ['markets', params],
+    queryFn: () => cryptoService.getMarkets(params),
     staleTime: 60000, // 1 minute
     refetchInterval: 300000, // 5 minutes
     select: (data) => {
-      // Sort data based on sortBy parameter
-      const sortedData = [...data];
-      
-      switch (sortBy) {
-        case 'market_cap_desc':
-          return sortedData.sort((a, b) => b.market_cap - a.market_cap);
-        case 'market_cap_asc':
-          return sortedData.sort((a, b) => a.market_cap - b.market_cap);
-        case 'price_desc':
-          return sortedData.sort((a, b) => b.current_price - a.current_price);
-        case 'price_asc':
-          return sortedData.sort((a, b) => a.current_price - b.current_price);
-        case 'volume_desc':
-          return sortedData.sort((a, b) => b.total_volume - a.total_volume);
-        case 'volume_asc':
-          return sortedData.sort((a, b) => a.total_volume - b.total_volume);
-        case 'change_desc':
-          return sortedData.sort((a, b) => (b.price_change_percentage_24h || 0) - (a.price_change_percentage_24h || 0));
-        case 'change_asc':
-          return sortedData.sort((a, b) => (a.price_change_percentage_24h || 0) - (b.price_change_percentage_24h || 0));
-        default:
-          return sortedData;
-      }
+      // Sort and normalize data
+      return data.map(coin => ({
+        id: coin.id,
+        symbol: coin.symbol.toUpperCase(),
+        name: coin.name,
+        image: coin.image,
+        currentPrice: coin.current_price,
+        marketCap: coin.market_cap,
+        marketCapRank: coin.market_cap_rank,
+        fullyDilutedValuation: coin.fully_diluted_valuation,
+        totalVolume: coin.total_volume,
+        high24h: coin.high_24h,
+        low24h: coin.low_24h,
+        priceChange24h: coin.price_change_24h,
+        priceChangePercentage24h: coin.price_change_percentage_24h,
+        marketCapChange24h: coin.market_cap_change_24h,
+        marketCapChangePercentage24h: coin.market_cap_change_percentage_24h,
+        circulatingSupply: coin.circulating_supply,
+        totalSupply: coin.total_supply,
+        maxSupply: coin.max_supply,
+        ath: coin.ath,
+        athChangePercentage: coin.ath_change_percentage,
+        athDate: coin.ath_date,
+        atl: coin.atl,
+        atlChangePercentage: coin.atl_change_percentage,
+        atlDate: coin.atl_date,
+        lastUpdated: coin.last_updated,
+        sparkline: coin.sparkline_in_7d
+      }));
     }
   });
 };
 
-// Hook for fetching cryptocurrency details
-export const useCryptoDetails = (id, currency = 'usd') => {
+// Hook for fetching coin details
+export const useCoinDetails = (id, currency = 'usd') => {
   return useQuery({
-    queryKey: ['cryptoDetails', id, currency],
-    queryFn: () => getCryptoDetails(id, import.meta.env.VITE_CURRENCY || currency),
+    queryKey: ['coinDetails', id, currency],
+    queryFn: () => cryptoService.getCoinDetails(id, currency),
     enabled: !!id,
     staleTime: 300000, // 5 minutes
     refetchInterval: 600000, // 10 minutes
+    select: (data) => ({
+      id: data.id,
+      symbol: data.symbol.toUpperCase(),
+      name: data.name,
+      description: data.description.en,
+      image: data.image.large,
+      categories: data.categories,
+      marketData: {
+        currentPrice: data.market_data?.current_price[currency],
+        marketCap: data.market_data?.market_cap[currency],
+        marketCapRank: data.market_data?.market_cap_rank,
+        fullyDilutedValuation: data.market_data?.fully_diluted_valuation[currency],
+        totalVolume: data.market_data?.total_volume[currency],
+        high24h: data.market_data?.high_24h[currency],
+        low24h: data.market_data?.low_24h[currency],
+        priceChange24h: data.market_data?.price_change_24h_in_currency[currency],
+        priceChangePercentage24h: data.market_data?.price_change_percentage_24h,
+        marketCapChange24h: data.market_data?.market_cap_change_24h_in_currency[currency],
+        marketCapChangePercentage24h: data.market_data?.market_cap_change_percentage_24h,
+        circulatingSupply: data.market_data?.circulating_supply,
+        totalSupply: data.market_data?.total_supply,
+        maxSupply: data.market_data?.max_supply,
+        ath: data.market_data?.ath[currency],
+        athChangePercentage: data.market_data?.ath_change_percentage[currency],
+        athDate: data.market_data?.ath_date[currency],
+        atl: data.market_data?.atl[currency],
+        atlChangePercentage: data.market_data?.atl_change_percentage[currency],
+        atlDate: data.market_data?.atl_date[currency],
+        lastUpdated: data.market_data?.last_updated
+      },
+      links: {
+        homepage: data.links.homepage,
+        blockchainSite: data.links.blockchain_site,
+        officialForumUrl: data.links.official_forum_url,
+        chatUrl: data.links.chat_url,
+        announcementUrl: data.links.announcement_url,
+        twitterScreenName: data.links.twitter_screen_name,
+        facebookUsername: data.links.facebook_username,
+        telegramChannelIdentifier: data.links.telegram_channel_identifier,
+        subredditUrl: data.links.subreddit_url,
+        reposUrl: data.links.repos_url
+      }
+    })
   });
 };
 
-// Hook for searching cryptocurrencies
-export const useSearchCryptos = (query) => {
+// Hook for fetching market chart
+export const useMarketChart = (id, days = 7, currency = 'usd') => {
   return useQuery({
-    queryKey: ['searchCryptos', query],
-    queryFn: () => searchCryptos(query),
-    enabled: !!query && query.length >= 2,
-    staleTime: 300000, // 5 minutes
-    select: (data) => data || []
+    queryKey: ['marketChart', id, days, currency],
+    queryFn: () => cryptoService.getMarketChart(id, days, currency),
+    enabled: !!id,
+    staleTime: 60000, // 1 minute
+    refetchInterval: 300000, // 5 minutes
+    select: (data) => ({
+      prices: data.prices.map(([timestamp, price]) => ({
+        timestamp,
+        price,
+        date: new Date(timestamp)
+      })),
+      marketCaps: data.market_caps.map(([timestamp, marketCap]) => ({
+        timestamp,
+        marketCap,
+        date: new Date(timestamp)
+      })),
+      totalVolumes: data.total_volumes.map(([timestamp, volume]) => ({
+        timestamp,
+        volume,
+        date: new Date(timestamp)
+      }))
+    })
   });
 };
 
 // Hook for global market data
-export const useGlobalMarketData = () => {
+export const useGlobalData = () => {
   return useQuery({
-    queryKey: ['globalMarketData'],
-    queryFn: getGlobalMarketData,
+    queryKey: ['globalData'],
+    queryFn: cryptoService.getGlobalData,
     staleTime: 600000, // 10 minutes
     refetchInterval: 600000, // 10 minutes
+    select: (data) => ({
+      activeCryptocurrencies: data.data.active_cryptocurrencies,
+      upcomingIcos: data.data.upcoming_icos,
+      ongoingIcos: data.data.ongoing_icos,
+      endedIcos: data.data.ended_cos,
+      markets: data.data.markets,
+      totalMarketCap: data.data.total_market_cap,
+      totalVolume: data.data.total_volume,
+      marketCapPercentage: data.data.market_cap_percentage,
+      marketCapChangePercentage24hUsd: data.data.market_cap_change_percentage_24h_usd,
+      volumeChangePercentage24hUsd: data.data.volume_change_percentage_24h_usd,
+      marketCapYtdPercentage: data.data.market_cap_ytd_percentage,
+      volumeYtdPercentage: data.data.volume_ytd_percentage,
+      marketCapAthPercentage: data.data.market_cap_ath_percentage,
+      volumeAthPercentage: data.data.volume_ath_percentage,
+      lastUpdated: data.data.updated_at
+    })
   });
 };
 
-// Hook for price history
-export const usePriceHistory = (id, days = 7) => {
+// Hook for searching coins
+export const useSearch = (query) => {
   return useQuery({
-    queryKey: ['priceHistory', id, days],
-    queryFn: () => getPriceHistory(id, days, import.meta.env.VITE_CURRENCY || 'usd'),
-    enabled: !!id, // Only run when id exists
-    staleTime: 60000, // 1 minute
-    refetchInterval: 300000, // 5 minutes
-    select: (data) => {
-      // Transform data for chart usage
-      return {
-        prices: data.prices.map(([timestamp, price]) => ({
-          timestamp,
-          price,
-          date: new Date(timestamp)
-        })),
-        marketCaps: data.market_caps.map(([timestamp, marketCap]) => ({
-          timestamp,
-          marketCap,
-          date: new Date(timestamp)
-        })),
-        totalVolumes: data.total_volumes.map(([timestamp, volume]) => ({
-          timestamp,
-          volume,
-          date: new Date(timestamp)
-        }))
-      };
-    }
+    queryKey: ['search', query],
+    queryFn: () => cryptoService.searchCoins(query),
+    enabled: !!query && query.length >= 2,
+    staleTime: 300000, // 5 minutes
+    select: (data) => ({
+      coins: data.coins?.map(coin => ({
+        id: coin.id,
+        name: coin.name,
+        symbol: coin.symbol.toUpperCase(),
+        marketCapRank: coin.market_cap_rank,
+        thumb: coin.thumb,
+        large: coin.large
+      })) || [],
+      exchanges: data.exchanges?.map(exchange => ({
+        id: exchange.id,
+        name: exchange.name,
+        marketCapRank: exchange.market_cap_rank,
+        thumb: exchange.thumb,
+        large: exchange.large
+      })) || [],
+      categories: data.categories?.map(category => ({
+        id: category.id,
+        name: category.name
+      })) || []
+    })
   });
 };
 
-// Hook for crypto statistics
+// Hook for categories
+export const useCategories = () => {
+  return useQuery({
+    queryKey: ['categories'],
+    queryFn: cryptoService.getCategories,
+    staleTime: 3600000, // 1 hour
+    refetchInterval: 3600000, // 1 hour
+    select: (data) => data.map(category => ({
+      id: category.id,
+      name: category.name,
+      marketCap: category.market_cap,
+      marketCapChange24h: category.market_cap_change_24h,
+      volume24h: category.volume_24h,
+      volumeChange24h: category.volume_change_24h,
+      content: category.content,
+      top3Coins: category.top_3_coins,
+      marketCapUsd: category.market_cap_usd,
+      volume24hUsd: category.volume_24h_usd
+    }))
+  });
+};
+
+// Hook for exchanges
+export const useExchanges = (params = {}) => {
+  return useQuery({
+    queryKey: ['exchanges', params],
+    queryFn: () => cryptoService.getExchanges(params),
+    staleTime: 300000, // 5 minutes
+    refetchInterval: 600000, // 10 minutes
+    select: (data) => data.map(exchange => ({
+      id: exchange.id,
+      name: exchange.name,
+      yearEstablished: exchange.year_established,
+      country: exchange.country,
+      description: exchange.description,
+      url: exchange.url,
+      image: exchange.image,
+      hasTradingIncentive: exchange.has_trading_incentive,
+      trustScore: exchange.trust_score,
+      trustScoreRank: exchange.trust_score_rank,
+      tradeVolume24hBtc: exchange.trade_volume_24h_btc_normalized,
+      tradeVolume24hBtcNormalized: exchange.trade_volume_24h_btc_normalized
+    }))
+  });
+};
+
+// Hook for crypto statistics (combination of multiple data sources)
 export const useCryptoStats = () => {
-  const { data: globalData } = useGlobalMarketData();
-  const { data: topCryptos } = useTopCryptos(10);
+  const { data: globalData } = useGlobalData();
+  const { data: markets } = useMarkets({ per_page: 10 });
 
   return {
     globalData,
-    topCryptos,
+    topMarkets: markets,
     // Calculate additional stats
-    totalMarketCap: globalData?.data?.total_market_cap?.usd,
-    marketCapChange: globalData?.data?.market_cap_change_percentage_24h_usd,
-    totalVolume: globalData?.data?.total_volume?.usd,
-    btcDominance: globalData?.data?.market_cap_percentage?.btc,
-    activeCryptos: globalData?.data?.active_cryptocurrencies
+    totalMarketCap: globalData?.totalMarketCap?.usd,
+    marketCapChange: globalData?.marketCapChangePercentage24hUsd,
+    totalVolume: globalData?.totalVolume?.usd,
+    btcDominance: globalData?.marketCapPercentage?.btc,
+    ethDominance: globalData?.marketCapPercentage?.eth,
+    activeCryptos: globalData?.activeCryptocurrencies,
+    topGainers: markets?.sort((a, b) => (b.priceChangePercentage24h || 0) - (a.priceChangePercentage24h || 0)).slice(0, 5),
+    topLosers: markets?.sort((a, b) => (a.priceChangePercentage24h || 0) - (b.priceChangePercentage24h || 0)).slice(0, 5)
   };
+};
+
+export const useTopCryptos = (limit = 10, currency = 'usd') => {
+  return useMarkets({
+    per_page: limit,
+    vs_currency: currency,
+    order: 'market_cap_desc',
+  });
 };

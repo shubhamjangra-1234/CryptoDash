@@ -54,16 +54,7 @@ const Header = ({ onToggleMobileSidebar }) => {
 
 
 
-        {/* Search */}
-        <div className="hidden md:flex items-center space-x-2 flex-1 max-w-sm">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search coins, portfolios..."
-              className="pl-8 w-64"
-            />
-          </div>
-        </div>
+
       </div>
 
       {/* Right Section */}

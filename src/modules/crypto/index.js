@@ -22,10 +22,10 @@ export {
 // Export all crypto hooks
 export {
   useTopCryptos,
-  useCryptoDetails,
-  useSearchCryptos,
-  useGlobalMarketData,
-  usePriceHistory,
+  // useCryptoDetails,
+  // useSearchCryptos,
+  // useGlobalMarketData,
+  // usePriceHistory,
   useCryptoStats
 } from './hooks/useCryptoData';
 

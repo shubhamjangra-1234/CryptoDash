@@ -1,31 +1,60 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
-import CryptoDashboard from '../pages/Index/Index';
 import ErrorBoundary, { ErrorFallback } from '../components/common/ErrorBoundary';
 
-// Route components - these will be created later
-const Coins = () => <div>Coins Page</div>;
-const CoinDetails = () => <div>Coin Details Page</div>;
-const Portfolio = () => <div>Portfolio Page</div>;
-const Settings = () => <div>Settings Page</div>;
-const NotFound = () => <div>404 - Page Not Found</div>;
+// Import pages (dumb components)
+import DashboardPage from '../pages/dashboard/Dashboard';
+import MarketsPage from '../modules/crypto/pages/MarketsPage';
+import CoinDetailPage from '../modules/crypto/pages/CoinDetailPage';
+import CategoriesPage from '../modules/crypto/pages/CategoriesPage';
+import ExchangesPage from '../modules/crypto/pages/ExchangesPage';
+
+// Placeholder components for future features
+const Portfolio = () => <div>Portfolio Page - Coming Soon</div>;
+const Settings = () => <div>Settings Page - Coming Soon</div>;
+const NotFound = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+      <p className="text-gray-600 mb-8">Page not found</p>
+      <a 
+        href="/"
+        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        Go Home
+      </a>
+    </div>
+  </div>
+);
 
 // Wrap components with error boundaries
-const SafeCryptoDashboard = () => (
+const SafeDashboardPage = () => (
   <ErrorBoundary>
-    <CryptoDashboard />
+    <DashboardPage/>
   </ErrorBoundary>
 );
 
-const SafeCoins = () => (
+const SafeMarketsPage = () => (
   <ErrorBoundary>
-    <Coins />
+    <MarketsPage />
   </ErrorBoundary>
 );
 
-const SafeCoinDetails = () => (
+const SafeCoinDetailPage = () => (
   <ErrorBoundary>
-    <CoinDetails />
+    <CoinDetailPage />
+  </ErrorBoundary>
+);
+
+const SafeCategoriesPage = () => (
+  <ErrorBoundary>
+    <CategoriesPage />
+  </ErrorBoundary>
+);
+
+const SafeExchangesPage = () => (
+  <ErrorBoundary>
+    <ExchangesPage />
   </ErrorBoundary>
 );
 
@@ -49,17 +78,32 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <SafeCryptoDashboard />,
+        element: <SafeDashboardPage />,
         errorElement: <ErrorFallback />
       },
       {
-        path: 'coins',
-        element: <SafeCoins />,
+        path: 'dashboard',
+        element: <SafeDashboardPage />,
         errorElement: <ErrorFallback />
       },
       {
-        path: 'coins/:id',
-        element: <SafeCoinDetails />,
+        path: 'markets',
+        element: <SafeMarketsPage />,
+        errorElement: <ErrorFallback />
+      },
+      {
+        path: 'coin/:id',
+        element: <SafeCoinDetailPage />,
+        errorElement: <ErrorFallback />
+      },
+      {
+        path: 'categories',
+        element: <SafeCategoriesPage />,
+        errorElement: <ErrorFallback />
+      },
+      {
+        path: 'exchanges',
+        element: <SafeExchangesPage />,
         errorElement: <ErrorFallback />
       },
       {

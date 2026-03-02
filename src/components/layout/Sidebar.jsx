@@ -14,12 +14,17 @@ import {
   Briefcase,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Store,
+  Tags,
+  ArrowLeftRight
 } from 'lucide-react';
 
 const iconMap = {
   Dashboard: LayoutDashboard,
-  Coins: Coins,
+  Markets: Store,
+  Categories: Tags,
+  Exchanges: ArrowLeftRight,
   Portfolio: Briefcase,
   Settings: Settings,
 };
@@ -89,10 +94,10 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileToggle }) => {
                         onMobileToggle();
                       }
                     }}>
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-4 w-4 text-zinc-200" />
                       {!isCollapsed && (
                         <>
-                          <span className="ml-2">{item.label}</span>
+                          <span className="ml-2 text-zinc-200">{item.label}</span>
                           {item.id === 'coins' && (
                             <Badge variant="secondary" className="ml-auto">
                               New

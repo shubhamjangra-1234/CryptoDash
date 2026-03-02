@@ -1,10 +1,8 @@
-import CryptoDashboard from '@/modules/crypto/cryptoDashboard';
-import React from 'react'
+import React from 'react';
+import DashboardPage from '../dashboard/DashboardPage';
 
 function Index() {
-  return (
-    <CryptoDashboard/>
-  )
+  return <DashboardPage />;
 }
 
 export default Index;

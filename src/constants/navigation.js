@@ -8,26 +8,26 @@ export const NAVIGATION_ITEMS = [
     description: 'Overview and statistics'
   },
   {
-    id: 'coins',
-    label: 'Coins',
-    href: '/coins',
-    icon: 'Coins',
-    description: 'Browse cryptocurrencies'
+    id: 'markets',
+    label: 'Markets',
+    href: '/markets',
+    icon: 'Markets',
+    description: 'Browse cryptocurrency markets'
   },
   {
-    id: 'portfolio',
-    label: 'Portfolio',
-    href: '/portfolio',
-    icon: 'Portfolio',
-    description: 'Manage your portfolio'
+    id: 'categories',
+    label: 'Categories',
+    href: '/categories',
+    icon: 'Categories',
+    description: 'Explore crypto categories'
   },
   {
-    id: 'settings',
-    label: 'Settings',
-    href: '/settings',
-    icon: 'Settings',
-    description: 'Application settings'
-  }
+    id: 'exchanges',
+    label: 'Exchanges',
+    href: '/exchanges',
+    icon: 'Exchanges',
+    description: 'Compare exchanges'
+  },
 ];
 
 export const HEADER_ACTIONS = [

@@ -76,7 +76,7 @@ export const Logo = ({
       {/* Logo Text */}
       {showText && (
         <span className={cn(
-          'text-foreground font-bold transition-colors',
+          'text-zinc-200 font-bold transition-colors',
           currentSize.text,
           textClassName
         )}>
