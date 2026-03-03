@@ -4,10 +4,12 @@ import ErrorBoundary, { ErrorFallback } from '../components/common/ErrorBoundary
 
 // Import pages (dumb components)
 import DashboardPage from '../pages/dashboard/Dashboard';
-import MarketsPage from '../modules/crypto/pages/MarketsPage';
+import MarketsPage from '../pages/markets/markets';
 import CoinDetailPage from '../modules/crypto/pages/CoinDetailPage';
 import CategoriesPage from '../modules/crypto/pages/CategoriesPage';
 import ExchangesPage from '../modules/crypto/pages/ExchangesPage';
+import Dashboard from '../pages/dashboard/Dashboard';
+import DummyDash from '../modules/crypto/pages/DashboardPage';
 
 // Placeholder components for future features
 const Portfolio = () => <div>Portfolio Page - Coming Soon</div>;
@@ -114,6 +116,11 @@ const router = createBrowserRouter([
       {
         path: 'settings',
         element: <SafeSettings />,
+        errorElement: <ErrorFallback />
+      },
+      {
+        path: 'dummy',
+        element: <DummyDash />,
         errorElement: <ErrorFallback />
       },
       {

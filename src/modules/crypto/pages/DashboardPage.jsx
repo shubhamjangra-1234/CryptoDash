@@ -20,7 +20,7 @@ const DashboardPage = React.memo(() => {
     // Navigate to coin detail page
     window.location.href = `/coin/${coin.id}`;
   };
-
+  console.log("topGainers", topGainers);
   if (statsError) {
     return (
       <div className="container mx-auto px-4 py-8">

@@ -123,7 +123,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileToggle }) => {
         <div className="p-4">
           <Separator className="bg-sidebar-border mb-4" />
           {!isCollapsed && (
-            <div className="text-xs text-sidebar-foreground/60">
+            <div className="text-xs text-zinc-200">
               {new Date().getFullYear()} CryptoDash
             </div>
           )}
@@ -133,7 +133,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileToggle }) => {
         <div
           onClick={onToggle}
           className={cn(
-            "absolute top-6 w-8 h-8 dark:bg-input/30 dark:border-input dark:hover:bg-input/50 transition-all duration-300 z-10 cursor-pointer flex items-center justify-center",
+            "absolute top-6 w-8 h-8 transition-all duration-300 z-10 cursor-pointer flex items-center justify-center",
             "hidden lg:block",
             isCollapsed ? "left-[66px]" : "left-[258px]"
           )}
