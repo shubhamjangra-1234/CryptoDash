@@ -6,7 +6,8 @@ import ErrorBoundary, { ErrorFallback } from '../components/common/ErrorBoundary
 import DashboardPage from '../pages/dashboard/Dashboard';
 import MarketsPage from '../pages/markets/markets';
 import CoinDetailPage from '../modules/crypto/pages/CoinDetailPage';
-import CategoriesPage from '../modules/crypto/pages/CategoriesPage';
+import CategoriesPage from '../pages/categories/categories';
+import CategoryDetailPage from '../modules/Categories/pages/CategoryDetailPage';
 import ExchangesPage from '../modules/crypto/pages/ExchangesPage';
 import Dashboard from '../pages/dashboard/Dashboard';
 import DummyDash from '../modules/crypto/pages/DashboardPage';
@@ -51,6 +52,12 @@ const SafeCoinDetailPage = () => (
 const SafeCategoriesPage = () => (
   <ErrorBoundary>
     <CategoriesPage />
+  </ErrorBoundary>
+);
+
+const SafeCategoryDetailPage = () => (
+  <ErrorBoundary>
+    <CategoryDetailPage />
   </ErrorBoundary>
 );
 
@@ -101,6 +108,11 @@ const router = createBrowserRouter([
       {
         path: 'categories',
         element: <SafeCategoriesPage />,
+        errorElement: <ErrorFallback />
+      },
+      {
+        path: 'categories/:categoryId',
+        element: <SafeCategoryDetailPage />,
         errorElement: <ErrorFallback />
       },
       {
