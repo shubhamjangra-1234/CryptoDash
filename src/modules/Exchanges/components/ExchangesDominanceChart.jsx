@@ -1,14 +1,25 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-const CategoryDominanceChart = ({ analytics }) => {
-  const { categoryDominance } = analytics;
+const ExchangesDominanceChart = ({ analytics, loading }) => {
+  const { exchangeDominance } = analytics;
 
-  if (!categoryDominance || categoryDominance.length === 0) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="text-muted-foreground text-lg mb-4">
+      <div className="bg-card rounded-2xl border border-border p-6 shadow-xl">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded-lg mb-4" />
+          <div className="h-64 bg-muted rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!exchangeDominance || exchangeDominance.length === 0) {
+    return (
+      <div className="bg-card rounded-2xl border border-border p-6 shadow-xl">
+        <div className="text-center py-12">
+          <div className="text-muted-foreground text-lg">
             No dominance data available
           </div>
         </div>
@@ -17,11 +28,11 @@ const CategoryDominanceChart = ({ analytics }) => {
   }
 
   // Prepare data for charts with proper formatting
-  const chartData = categoryDominance.slice(0, 8).map(item => ({
+  const chartData = exchangeDominance.slice(0, 8).map(item => ({
     name: item.name,
-    value: item.market_cap,
+    value: item.trade_volume_24h_btc_normalized || 0,
     percentage: item.dominance,
-    formattedMarketCap: formatCurrency(item.market_cap, true),
+    formattedVolume: formatCurrency((item.trade_volume_24h_btc_normalized || 0) * 50000),
     formattedPercentage: `${item.dominance.toFixed(2)}%`
   }));
 
@@ -47,7 +58,7 @@ const CategoryDominanceChart = ({ analytics }) => {
           <p className="text-foreground font-semibold text-sm mb-1">{data.name}</p>
           <div className="space-y-1">
             <p className="text-muted-foreground text-xs text-left">
-              Market Cap: <span className="text-foreground font-medium">{data.formattedMarketCap}</span>
+              Volume: <span className="text-foreground font-medium">{data.formattedVolume}</span>
             </p>
             <p className="text-muted-foreground text-xs text-left">
               Dominance: <span className="text-foreground font-medium">{data.formattedPercentage}</span>
@@ -93,12 +104,12 @@ const CategoryDominanceChart = ({ analytics }) => {
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
       {/* Pie Chart */}
-      <div className="bg-card h-[500px] rounded-2xl border border-border p-4 md:p-6 shadow-xl w-full">
+      <div className="bg-card rounded-2xl border border-border p-4 lg:p-6 shadow-xl w-full">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
           <div>
-            <h3 className="text-lg lg:text-xl font-bold text-foreground mb-1">Market Share</h3>
+            <h3 className="text-lg lg:text-xl font-bold text-foreground mb-1">Volume Share</h3>
             <div className="text-xs lg:text-sm text-muted-foreground">
-              Top 8 Categories by Dominance
+              Top 8 Exchanges by Volume
             </div>
           </div>
         </div>
@@ -111,7 +122,7 @@ const CategoryDominanceChart = ({ analytics }) => {
               cy="50%"
               labelLine={false}
               label={renderCustomizedLabel}
-              outerRadius={120}
+              outerRadius={100}
               fill="var(--muted)"
               dataKey="value"
               animationBegin={0}
@@ -144,12 +155,12 @@ const CategoryDominanceChart = ({ analytics }) => {
       </div>
 
       {/* Bar Chart */}
-      <div className="bg-card rounded-2xl border border-border p-6 shadow-xl">
-        <div className="flex items-start justify-between mb-4">
+      <div className="bg-card  rounded-2xl border border-border p-4 md:p-6 shadow-xl w-full">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-2">
           <div>
-            <h3 className="text-xl font-bold text-foreground mb-1">Market Cap Comparison</h3>
-            <div className="text-sm text-muted-foreground">
-              Top 8 Categories by Market Cap
+            <h3 className="text-lg lg:text-xl font-bold text-foreground mb-1">Volume Comparison</h3>
+            <div className="text-xs lg:text-sm text-muted-foreground">
+              Top 8 Exchanges by Volume
             </div>
           </div>
         </div>
@@ -157,7 +168,7 @@ const CategoryDominanceChart = ({ analytics }) => {
         <ResponsiveContainer width="100%" height={350}>
           <BarChart 
             data={chartData} 
-            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
@@ -174,7 +185,7 @@ const CategoryDominanceChart = ({ analytics }) => {
             />
             <YAxis 
               tick={{ fill: 'var(--muted-foreground)', fontSize: 11, textAnchor: 'end' }}
-              tickFormatter={(value) => formatCurrency(value, true)}
+              tickFormatter={(value) => formatCurrency(value * 50000, true)}
               axisLine={false}
               tickLine={false}
             />
@@ -203,15 +214,18 @@ const CategoryDominanceChart = ({ analytics }) => {
   );
 };
 
-// Utility function
+// Enhanced currency formatter with short format option
 const formatCurrency = (value, short = false) => {
   if (!value) return "$0";
+  
   if (short) {
     if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
     if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
     if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
     if (value >= 1e3) return `$${(value / 1e3).toFixed(1)}K`;
+    return `$${value.toFixed(2)}`;
   }
+  
   if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
   if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
   if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
@@ -219,4 +233,4 @@ const formatCurrency = (value, short = false) => {
   return `$${value.toFixed(2)}`;
 };
 
-export default CategoryDominanceChart;
+export default ExchangesDominanceChart;

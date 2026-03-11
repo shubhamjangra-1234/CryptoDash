@@ -116,6 +116,23 @@ export const cryptoService = {
     return await cryptoApi.get('/exchanges', {
       params: { ...defaultParams, ...params }
     });
+  },
+
+  // Get exchange details
+  getExchangeDetails: async (exchangeId) => {
+    return await cryptoApi.get(`/exchanges/${exchangeId}`);
+  },
+
+  // Get exchange markets
+  getExchangeMarkets: async (exchangeId, params = {}) => {
+    const defaultParams = {
+      limit: 100,
+      page: 1
+    };
+    
+    return await cryptoApi.get(`/exchanges/${exchangeId}/tickers`, {
+      params: { ...defaultParams, ...params }
+    });
   }
 };
 

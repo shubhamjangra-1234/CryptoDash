@@ -8,7 +8,8 @@ import MarketsPage from '../pages/markets/markets';
 import CoinDetailPage from '../modules/crypto/pages/CoinDetailPage';
 import CategoriesPage from '../pages/categories/categories';
 import CategoryDetailPage from '../modules/Categories/pages/CategoryDetailPage';
-import ExchangesPage from '../modules/crypto/pages/ExchangesPage';
+import ExchangesPage from '../pages/exchanges/exchanges';
+// import ExchangeDetailPage from '../modules/Exchanges/pages/ExchangeDetailPage';
 import Dashboard from '../pages/dashboard/Dashboard';
 import DummyDash from '../modules/crypto/pages/DashboardPage';
 
