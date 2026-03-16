@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { HEADER_ACTIONS } from '@/constants/navigation';
 import {
   Bell,
   Search,
@@ -23,7 +21,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 
-const Header = ({ onToggleMobileSidebar }) => {
+const Header = ({ onToggleMobileSidebar, data }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const handleThemeToggle = () => {
@@ -36,9 +34,8 @@ const Header = ({ onToggleMobileSidebar }) => {
     profile: User,
     theme: isDarkMode ? Sun : Moon,
   };
-
   return (
-    <header className="flex items-center justify-between h-16 px-6 bg-background border-b border-border">
+    <header className="flex items-center justify-between h-20 px-6 bg-background border-b border-border">
       {/* Left Section */}
       <div className="flex items-center space-x-4">
         <Button
@@ -52,7 +49,16 @@ const Header = ({ onToggleMobileSidebar }) => {
           </svg>
         </Button>
 
-
+        {data?.gainers?.map((coin) => (
+          <div
+            key={coin.id}
+            className="px-3 py-1 hidden md:block rounded-lg bg-green-500/10 border border-green-500/20"
+          >
+            <span className="text-sm font-medium text-green-500">
+              {coin.symbol.toUpperCase()} +{coin.change?.toFixed(2)}%
+            </span>
+          </div>
+        ))}
 
 
       </div>

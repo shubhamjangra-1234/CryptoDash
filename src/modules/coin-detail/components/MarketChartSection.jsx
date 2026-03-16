@@ -3,7 +3,7 @@ import ChartContainer from '../../../shared/components/ChartContainer';
 import { formatCurrency } from '../utils/formatters';
 
 const MarketChartSection = React.memo(({ 
-  data, 
+  chartData, 
   loading = false, 
   error = null,
   title = "Price Chart",
@@ -11,8 +11,11 @@ const MarketChartSection = React.memo(({
 }) => {
   const [timeRange, setTimeRange] = useState(7);
   const [chartType, setChartType] = useState('prices');
-
-  if (!data) {
+  
+  
+  console.log("ChartData", chartData);
+  // Handle undefined data gracefully
+  if (!chartData || Object.keys(chartData).length === 0) {
     return (
       <ChartContainer
         title={title}
@@ -28,7 +31,21 @@ const MarketChartSection = React.memo(({
     );
   }
 
-  const chartData = data[chartType] || [];
+  // Handle CoinGecko API data structure
+  const getChartData = () => {
+    switch (chartType) {
+      case 'prices':
+        return chartData.prices || [];
+      case 'marketCaps':
+        return chartData.market_caps || [];
+      case 'totalVolumes':
+        return chartData.total_volumes || [];
+      default:
+        return chartData.prices || [];
+    }
+  };
+
+  const chartDataArray = getChartData();
   
   const getChartTypeLabel = () => {
     switch (chartType) {
@@ -47,17 +64,22 @@ const MarketChartSection = React.memo(({
   };
 
   const getMinValue = () => {
-    if (chartData.length === 0) return 0;
-    return Math.min(...chartData.map(point => point[1]));
+    if (!Array.isArray(chartDataArray) || chartDataArray.length === 0) return 0;
+    return Math.min(...chartDataArray.map(item => item[1]));
   };
 
   const getMaxValue = () => {
-    if (chartData.length === 0) return 100;
-    return Math.max(...chartData.map(point => point[1]));
+    if (!Array.isArray(chartDataArray) || chartDataArray.length === 0) return 0;
+    return Math.max(...chartDataArray.map(item => item[1]));
+  };
+
+  const getLatestValue = () => {
+    if (!Array.isArray(chartDataArray) || chartDataArray.length === 0) return 0;
+    return chartDataArray[chartDataArray.length - 1][1];
   };
 
   const renderSimpleChart = () => {
-    if (chartData.length === 0) {
+    if (!Array.isArray(chartDataArray) || chartDataArray.length === 0) {
       return (
         <div className="h-full flex items-center justify-center text-gray-500">
           No {getChartTypeLabel().toLowerCase()} data available
@@ -90,7 +112,7 @@ const MarketChartSection = React.memo(({
             ))}
           </div>
           <div className="text-sm text-gray-600">
-            {getChartTypeLabel()}: {formatValue(chartData[chartData.length - 1]?.[1] || 0)}
+            {getChartTypeLabel()}: {formatValue(chartDataArray[chartDataArray.length - 1]?.[1] || 0)}
           </div>
         </div>
 
@@ -114,22 +136,24 @@ const MarketChartSection = React.memo(({
             fill="none"
             stroke="#3b82f6"
             strokeWidth="2"
-            points={chartData.map((point, index) => {
-              const x = (index / (chartData.length - 1)) * 400;
-              const y = 200 - ((point[1] - minValue) / range) * 200;
+            points={chartDataArray.map((point, index) => {
+              if (!Array.isArray(point) || point.length < 2) return '';
+              const x = (index / (chartDataArray.length - 1)) * 400;
+              const y = 200 - (((point[1] || 0) - minValue) / range) * 200;
               return `${x},${y}`;
-            }).join(' ')}
+            }).filter(Boolean).join(' ')}
           />
 
           {/* Area under the line */}
           <polygon
             fill="url(#gradient)"
             opacity="0.3"
-            points={`0,200 ${chartData.map((point, index) => {
-              const x = (index / (chartData.length - 1)) * 400;
-              const y = 200 - ((point[1] - minValue) / range) * 200;
+            points={`0,200 ${chartDataArray.map((point, index) => {
+              if (!Array.isArray(point) || point.length < 2) return '';
+              const x = (index / (chartDataArray.length - 1)) * 400;
+              const y = 200 - ((point[1] || 0 - minValue) / range) * 200;
               return `${x},${y}`;
-            }).join(' ')} 400,200`}
+            }).filter(Boolean).join(' ')} 400,200`}
           />
 
           {/* Gradient definition */}
@@ -143,8 +167,8 @@ const MarketChartSection = React.memo(({
 
         {/* Chart Footer */}
         <div className="flex justify-between text-xs text-gray-500 mt-2">
-          <span>{chartData[0]?.date.toLocaleDateString()}</span>
-          <span>{chartData[chartData.length - 1]?.date.toLocaleDateString()}</span>
+          <span>{chartDataArray[0] && Array.isArray(chartDataArray[0]) ? new Date(chartDataArray[0][0]).toLocaleDateString() : 'N/A'}</span>
+          <span>{chartDataArray[chartDataArray.length - 1] && Array.isArray(chartDataArray[chartDataArray.length - 1]) ? new Date(chartDataArray[chartDataArray.length - 1][0]).toLocaleDateString() : 'N/A'}</span>
         </div>
       </div>
     );
@@ -153,7 +177,7 @@ const MarketChartSection = React.memo(({
   return (
     <ChartContainer
       title={title}
-      subtitle={`${getChartTypeLabel()} Chart - ${timeRange} days`}
+      subtitle={null}
       loading={loading}
       error={error}
       timeRange={timeRange}

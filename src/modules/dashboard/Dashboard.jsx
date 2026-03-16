@@ -18,6 +18,10 @@ const Dashboard = () => {
   const { data: marketData, isLoading: marketLoading, error: marketError } = useMarketDataTable(config);
   const { data: chartData, isLoading: chartLoading, error: chartError } = useChartData(config.chartTimeRange);
 
+  // Debug logging to check data flow
+  console.log('Dashboard - moversData:', moversData);
+  console.log('Dashboard - gainer:', moversData?.gainer);
+
   // Event handlers
   const handleStatClick = (statType) => {
     console.log('Stat clicked:', statType);
@@ -63,7 +67,7 @@ const Dashboard = () => {
   const hasError = statsError || moversError || marketError || chartError;
 
   return (
-    <div className="space-y-2">
+    <div className="container mx-auto p-2 space-y-6">
       {/* Header Section */}
       <DashboardHeader
         title="CryptoDash"
@@ -72,6 +76,7 @@ const Dashboard = () => {
         onExport={handleExport}
         isRefreshing={config.isRefreshing}
         lastRefreshTime={config.lastRefreshTime}
+        data={{ gainer: moversData?.gainer }}
       />
 
       {/* Stats Grid */}

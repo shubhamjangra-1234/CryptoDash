@@ -62,7 +62,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileToggle }) => {
             variant="ghost"
             size="icon"
             onClick={onMobileToggle}
-            className="lg:hidden text-sidebar-foreground hover:bg-sidebar-accent"
+            className="lg:hidden text-white hover:bg-sidebar-accent"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -133,7 +133,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileToggle }) => {
         <div
           onClick={onToggle}
           className={cn(
-            "absolute top-6 w-8 h-8 transition-all duration-300 z-10 cursor-pointer flex items-center justify-center",
+            "absolute top-8 w-8 h-8 transition-all duration-300 z-10 cursor-pointer flex items-center justify-center",
             "hidden lg:block",
             isCollapsed ? "left-[66px]" : "left-[258px]"
           )}

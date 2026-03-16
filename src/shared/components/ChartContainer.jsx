@@ -2,11 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 
-const ChartContainer = React.memo(({ 
-  title, 
+const ChartContainer = React.memo(({
+  title,
   subtitle = null,
-  children, 
-  loading = false, 
+  children,
+  loading = false,
   error = null,
   actions = null,
   timeRange = null,
@@ -51,8 +51,7 @@ const ChartContainer = React.memo(({
           <div className="h-64 flex items-center justify-center">
             <div className="text-center text-red-600">
               <p className="font-medium">Error loading chart</p>
-              <p className="text-sm">{error}</p>
-            </div>
+              <p>{error?.message || "Failed to load chart data"}</p>            </div>
           </div>
         </CardContent>
       </Card>

@@ -30,9 +30,17 @@ export const useMarketStats = () => {
 export const useTopMovers = () => {
   const { topMarkets, isLoading, error } = useCryptoStats();
   
+  // Debug logging
+  
   // Transform markets data to gainers/losers
-  const gainers = topMarkets?.filter(coin => (coin.priceChangePercentage24h || 0) > 0).slice(0, 5) || [];
-  const losers = topMarkets?.filter(coin => (coin.priceChangePercentage24h || 0) < 0).slice(0, 5) || [];
+  const gainers = topMarkets?.filter(coin => (coin.price_change_percentage_24h || coin.priceChangePercentage24h || 0) > 0).slice(0, 5) || [];
+  const losers = topMarkets?.filter(coin => (coin.price_change_percentage_24h || coin.priceChangePercentage24h || 0) < 0).slice(0, 5) || [];
+  
+
+  
+  // Get top gainer for header
+  const topGainer = gainers.length > 0 ? gainers[0] : null;
+
   
   // Transform data structure
   const transformCoin = (coin) => ({
@@ -40,8 +48,8 @@ export const useTopMovers = () => {
     name: coin.name,
     symbol: coin.symbol,
     price: coin.currentPrice,
-    change: coin.priceChangePercentage24h,
-    changeType: (coin.priceChangePercentage24h || 0) > 0 ? 'positive' : 'negative',
+    change: coin.price_change_percentage_24h || coin.priceChangePercentage24h || 0,
+    changeType: (coin.price_change_percentage_24h || coin.priceChangePercentage24h || 0) > 0 ? 'positive' : 'negative',
     marketCap: coin.marketCap,
     volume: coin.totalVolume,
     image: coin.image,
@@ -51,7 +59,8 @@ export const useTopMovers = () => {
   return {
     data: {
       gainers: gainers.map(transformCoin),
-      losers: losers.map(transformCoin)
+      losers: losers.map(transformCoin),
+      gainer: topGainer ? `${topGainer.name} +${topGainer.change}%` : null
     },
     isLoading,
     error

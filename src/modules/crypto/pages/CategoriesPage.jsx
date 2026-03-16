@@ -15,7 +15,6 @@ const CategoriesPage = React.memo(() => {
 
   const handleCategoryClick = (category) => {
     // Navigate to category detail or filter markets by category
-    console.log('Category clicked:', category);
   };
 
   if (error) {

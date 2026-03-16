@@ -5,7 +5,7 @@ import ErrorBoundary, { ErrorFallback } from '../components/common/ErrorBoundary
 // Import pages (dumb components)
 import DashboardPage from '../pages/dashboard/Dashboard';
 import MarketsPage from '../pages/markets/markets';
-import CoinDetailPage from '../modules/crypto/pages/CoinDetailPage';
+import CoinDetailPage from '../modules/coin-detail/pages/CoinDetailPage';
 import CategoriesPage from '../pages/categories/categories';
 import CategoryDetailPage from '../modules/Categories/pages/CategoryDetailPage';
 import ExchangesPage from '../pages/exchanges/exchanges';

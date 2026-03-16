@@ -12,13 +12,6 @@ const cryptoApi = axios.create({
 // Request interceptor
 cryptoApi.interceptors.request.use(
   (config) => {
-    // Log request config for debugging
-    console.log('Request config:', {
-      baseURL: config.baseURL,
-      url: config.url,
-      headers: config.headers,
-      method: config.method
-    });
     return config;
   },
   (error) => {
@@ -83,6 +76,17 @@ export const cryptoService = {
     return await cryptoApi.get(`/coins/${id}/market_chart`, {
       params: {
         vs_currency: import.meta.env.VITE_CURRENCY || currency,
+        days: days,
+        interval: days === 1 ? 'hourly' : 'daily'
+      }
+    });
+  },
+
+  // Get coin market chart data
+  getCoinMarketChart: async (coinId, currency = 'usd', days = 7) => {
+    return await cryptoApi.get(`/coins/${coinId}/market_chart`, {
+      params: {
+        vs_currency: currency,
         days: days,
         interval: days === 1 ? 'hourly' : 'daily'
       }
