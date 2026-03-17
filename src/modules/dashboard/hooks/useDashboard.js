@@ -69,7 +69,6 @@ export const useDashboard = (initialConfig = {}) => {
 
   const handleExport = useCallback(() => {
     // Export functionality
-    console.log('Exporting dashboard data...');
     // Implementation would go here
   }, []);
 

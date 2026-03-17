@@ -2,7 +2,6 @@ import React from 'react';
 import { Crown, Star, TrendingUp, Globe, Shield, ExternalLink } from 'lucide-react';
 import {formatCurrency} from "../utils/formatters";
 const ExchangesHeroCard = ({ exchange, loading }) => {
-  console.log("exchange",exchange);
   if (loading) {
     return (
       <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-2xl mb-8 animate-pulse">

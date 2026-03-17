@@ -2,8 +2,8 @@ import React from 'react';
 import { ArrowUpIcon, ArrowDownIcon, MinusIcon } from 'lucide-react';
 import { formatCurrency } from '../utils/formatters';
 import { Eye } from 'lucide-react';
+import { EmptyStateUI } from '../../../components/ui/NetworkErrorUI.jsx';
 const MarketsTable = ({ data, loading, error, onRowClick }) => {
-  console.log("Data",data);
   if (loading) {
     return (
       <div className="space-y-3">
@@ -28,9 +28,10 @@ const MarketsTable = ({ data, loading, error, onRowClick }) => {
 
   if (!data || data.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        No market data available
-      </div>
+      <EmptyStateUI 
+        message="No market data available"
+        description="There are no cryptocurrency markets to display at the moment."
+      />
     );
   }
 

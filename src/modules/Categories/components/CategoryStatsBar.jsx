@@ -42,7 +42,7 @@ const CategoryStatsBar = ({ analytics }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
       {stats.map((stat, index) => (
         <div
           key={index}
@@ -58,7 +58,7 @@ const CategoryStatsBar = ({ analytics }) => {
               </div>
             </div>
             <div className="space-y-1">
-              <div className="text-lg md:text-2xl text-nowrap font-bold text-foreground">
+              <div className="text-lg md:text-2xl font-bold text-foreground">
                 {stat.value}
               </div>
               {stat.subtitle && (

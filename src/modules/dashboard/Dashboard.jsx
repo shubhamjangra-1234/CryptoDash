@@ -18,18 +18,13 @@ const Dashboard = () => {
   const { data: marketData, isLoading: marketLoading, error: marketError } = useMarketDataTable(config);
   const { data: chartData, isLoading: chartLoading, error: chartError } = useChartData(config.chartTimeRange);
 
-  // Debug logging to check data flow
-  console.log('Dashboard - moversData:', moversData);
-  console.log('Dashboard - gainer:', moversData?.gainer);
 
   // Event handlers
   const handleStatClick = (statType) => {
-    console.log('Stat clicked:', statType);
-    // Navigate to detailed view or show modal
+
   };
 
   const handleCoinClick = (coin) => {
-    console.log('Coin clicked:', coin);
     // Navigate to coin detail page
     if (coin.id) {
       window.location.href = `/coin/${coin.id}`;
@@ -45,12 +40,10 @@ const Dashboard = () => {
   };
 
   const handleTimeRangeChange = (timeRange) => {
-    // Update chart time range
-    console.log('Time range changed:', timeRange);
+ 
   };
 
   const handleExport = () => {
-    console.log('Exporting dashboard data...');
     actions.export();
   };
 
@@ -59,7 +52,6 @@ const Dashboard = () => {
   };
 
   const handleStatAction = (action) => {
-    console.log('Stat action:', action);
   };
 
   // Loading states

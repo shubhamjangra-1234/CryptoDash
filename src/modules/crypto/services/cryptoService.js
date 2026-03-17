@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { delay, withRetry, withCache, generateCacheKey } from '../../../utils/apiUtils';
+import { errorHandler, retryWithBackoff } from '../../../utils/errorHandler';
 
 // Axios instance for crypto API
 const cryptoApi = axios.create({
@@ -13,6 +14,8 @@ const cryptoApi = axios.create({
 // Request interceptor
 cryptoApi.interceptors.request.use(
   (config) => {
+    // Add request timestamp for debugging
+    config.requestTimestamp = Date.now();
     return config;
   },
   (error) => {
@@ -20,34 +23,59 @@ cryptoApi.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Response interceptor with centralized error handling
 cryptoApi.interceptors.response.use(
   (response) => {
+    // Log response time in development
+    if (process.env.NODE_ENV === 'development') {
+      const responseTime = Date.now() - response.config.requestTimestamp;
+    }
     return response.data;
   },
   (error) => {
-    // Handle common errors
-    if (error.response?.status === 429) {
-      throw new Error('Rate limit exceeded. Please try again later.');
+    // Log error details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('API Error:', {
+        url: error.config?.url,
+        status: error.response?.status,
+        message: error.message,
+        data: error.response?.data
+      });
     }
-    if (error.response?.status === 401) {
-      throw new Error('Unauthorized access.');
+
+    // Handle specific error types
+    const errorType = errorHandler.getErrorType(error);
+    
+    switch (errorType) {
+      case errorHandler.ERROR_TYPES.RATE_LIMIT:
+        // Don't show toast for rate limit errors here - let the retry mechanism handle it
+        break;
+      case errorHandler.ERROR_TYPES.NETWORK_ERROR:
+        // Show network error toast
+        errorHandler.showErrorToast(error);
+        break;
+      case errorHandler.ERROR_TYPES.NOT_FOUND:
+        // Don't show toast for 404s - let components handle it
+        break;
+      default:
+        // Show toast for other errors
+        errorHandler.showErrorToast(error);
     }
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('Request timeout. Please check your connection.');
-    }
-    throw error;
+
+    // Enhance error with type information
+    error.errorType = errorType;
+    return Promise.reject(error);
   }
 );
 
-// API Methods
+// Enhanced API methods with retry and caching
 export const cryptoService = {
-  // Get markets data
+  // Get markets data with retry and caching
   getMarkets: async (params = {}) => {
     const cacheKey = generateCacheKey('markets', Object.entries(params).map(([k, v]) => `${k}:${v}`));
     
     return withCache(cacheKey, async () => {
-      return withRetry(async () => {
+      return retryWithBackoff(async () => {
         const defaultParams = {
           vs_currency: import.meta.env.VITE_CURRENCY || 'usd',
           order: import.meta.env.VITE_ORDER || 'market_cap_desc',
@@ -57,7 +85,7 @@ export const cryptoService = {
           price_change_percentage: import.meta.env.VITE_PRICE_CHANGE_PERCENTAGE || '24h'
         };
         
-        await delay(API_DELAY); // Rate limiting
+        await delay(100); // Rate limiting
         
         return await cryptoApi.get('/coins/markets', {
           params: { ...defaultParams, ...params }
@@ -66,13 +94,13 @@ export const cryptoService = {
     });
   },
 
-  // Get coin details by ID
+  // Get coin details by ID with retry and caching
   getCoinDetails: async (id, currency = 'usd') => {
     const cacheKey = generateCacheKey('coin', id, currency);
     
     return withCache(cacheKey, async () => {
-      return withRetry(async () => {
-        await delay(API_DELAY);
+      return retryWithBackoff(async () => {
+        await delay(100); // Rate limiting
         
         return await cryptoApi.get(`/coins/${id}`, {
           params: {
@@ -88,13 +116,13 @@ export const cryptoService = {
     });
   },
 
-  // Get market chart for a coin
+  // Get market chart for a coin with retry and caching
   getMarketChart: async (id, days = 7, currency = 'usd') => {
     const cacheKey = generateCacheKey('chart', id, days, currency);
     
     return withCache(cacheKey, async () => {
-      return withRetry(async () => {
-        await delay(API_DELAY);
+      return retryWithBackoff(async () => {
+        await delay(100); // Rate limiting
         
         return await cryptoApi.get(`/coins/${id}/market_chart`, {
           params: {
@@ -107,13 +135,13 @@ export const cryptoService = {
     });
   },
 
-  // Get coin market chart data
+  // Get coin market chart data with retry and caching
   getCoinMarketChart: async (coinId, currency = 'usd', days = 7) => {
     const cacheKey = generateCacheKey('coinChart', coinId, days, currency);
     
     return withCache(cacheKey, async () => {
-      return withRetry(async () => {
-        await delay(API_DELAY);
+      return retryWithBackoff(async () => {
+        await delay(100); // Rate limiting
         
         return await cryptoApi.get(`/coins/${coinId}/market_chart`, {
           params: {
@@ -126,49 +154,97 @@ export const cryptoService = {
     });
   },
 
-  // Get global market data
+  // Get global market data with retry and caching
   getGlobalData: async () => {
-    return await cryptoApi.get('/global');
+    const cacheKey = generateCacheKey('global');
+    
+    return withCache(cacheKey, async () => {
+      return retryWithBackoff(async () => {
+        await delay(100); // Rate limiting
+        
+        return await cryptoApi.get('/global');
+      });
+    });
   },
 
-  // Search coins
+  // Search coins with retry and caching
   searchCoins: async (query) => {
-    return await cryptoApi.get('/search', {
-      params: { query }
+    const cacheKey = generateCacheKey('search', query);
+    
+    return withCache(cacheKey, async () => {
+      return retryWithBackoff(async () => {
+        await delay(100); // Rate limiting
+        
+        return await cryptoApi.get('/search', {
+          params: { query }
+        });
+      }, 2, 500); // Less retries for search
     });
   },
 
-  // Get categories
+  // Get categories with retry and caching
   getCategories: async () => {
-    return await cryptoApi.get('/coins/categories');
-  },
-
-  // Get exchanges
-  getExchanges: async (params = {}) => {
-    const defaultParams = {
-      per_page: 100,
-      page: 1
-    };
+    const cacheKey = generateCacheKey('categories');
     
-    return await cryptoApi.get('/exchanges', {
-      params: { ...defaultParams, ...params }
+    return withCache(cacheKey, async () => {
+      return retryWithBackoff(async () => {
+        await delay(100); // Rate limiting
+        
+        return await cryptoApi.get('/coins/categories');
+      });
     });
   },
 
-  // Get exchange details
-  getExchangeDetails: async (exchangeId) => {
-    return await cryptoApi.get(`/exchanges/${exchangeId}`);
+  // Get exchanges with retry and caching
+  getExchanges: async (params = {}) => {
+    const cacheKey = generateCacheKey('exchanges', Object.entries(params).map(([k, v]) => `${k}:${v}`));
+    
+    return withCache(cacheKey, async () => {
+      return retryWithBackoff(async () => {
+        const defaultParams = {
+          per_page: 100,
+          page: 1
+        };
+        
+        await delay(100); // Rate limiting
+        
+        return await cryptoApi.get('/exchanges', {
+          params: { ...defaultParams, ...params }
+        });
+      });
+    });
   },
 
-  // Get exchange markets
-  getExchangeMarkets: async (exchangeId, params = {}) => {
-    const defaultParams = {
-      limit: 100,
-      page: 1
-    };
+  // Get exchange details with retry and caching
+  getExchangeDetails: async (exchangeId) => {
+    const cacheKey = generateCacheKey('exchange', exchangeId);
     
-    return await cryptoApi.get(`/exchanges/${exchangeId}/tickers`, {
-      params: { ...defaultParams, ...params }
+    return withCache(cacheKey, async () => {
+      return retryWithBackoff(async () => {
+        await delay(100); // Rate limiting
+        
+        return await cryptoApi.get(`/exchanges/${exchangeId}`);
+      });
+    });
+  },
+
+  // Get exchange markets with retry and caching
+  getExchangeMarkets: async (exchangeId, params = {}) => {
+    const cacheKey = generateCacheKey('exchangeMarkets', exchangeId, Object.entries(params).map(([k, v]) => `${k}:${v}`));
+    
+    return withCache(cacheKey, async () => {
+      return retryWithBackoff(async () => {
+        const defaultParams = {
+          limit: 100,
+          page: 1
+        };
+        
+        await delay(100); // Rate limiting
+        
+        return await cryptoApi.get(`/exchanges/${exchangeId}/tickers`, {
+          params: { ...defaultParams, ...params }
+        });
+      });
     });
   }
 };

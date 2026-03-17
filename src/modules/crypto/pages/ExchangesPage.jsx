@@ -28,7 +28,6 @@ const ExchangesPage = React.memo(() => {
 
   const handleExchangeClick = (exchange) => {
     // Navigate to exchange detail page
-    console.log('Exchange clicked:', exchange);
   };
 
   const filteredExchanges = React.useMemo(() => {

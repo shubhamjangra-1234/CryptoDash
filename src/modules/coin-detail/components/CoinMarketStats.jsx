@@ -5,15 +5,7 @@ import { formatNumber, formatMarketCap, formatPrice, formatPercentage } from '..
 import { TrendingUp, TrendingDown, Activity, DollarSign, Users, Eye } from 'lucide-react';
 
 const CoinMarketStats = ({ coin, loading, error }) => {
-  // Debug logging to see all data
-  console.log('=== CoinMarketStats Debug ===');
-  console.log('Full coin object:', coin);
-  console.log('coin.market_data:', coin.market_data);
-  console.log('coin.current_price:', coin.current_price);
-  console.log('coin.total_volume:', coin.total_volume);
-  console.log('coin.market_cap:', coin.market_cap);
-  console.log('Available keys:', Object.keys(coin || {}));
-  console.log('==========================');
+
   // Major currencies with flags
   const majorCurrencies = [
     { code: 'USD', symbol: '$', name: 'US Dollar' },
@@ -26,25 +18,6 @@ const CoinMarketStats = ({ coin, loading, error }) => {
   ];
 
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
-
-  // Debug currency changes
-  const handleCurrencyChange = (currency) => {
-    console.log('=== Currency Change Debug ===');
-    console.log('New currency:', currency);
-    console.log('Available total_volume fields:', {
-      'total_volume_usd': coin.total_volume_usd,
-      'total_volume_inr': coin.total_volume_inr,
-      'total_volume_btc': coin.total_volume_btc,
-      'totalVolume': coin.totalVolume
-    });
-    console.log('Available current_price fields:', {
-      'current_price_usd': coin.current_price_usd,
-      'current_price_inr': coin.current_price_inr,
-      'current_price_btc': coin.current_price_btc,
-      'currentPrice': coin.currentPrice
-    });
-    setSelectedCurrency(currency);
-  };
 
   // Dynamic currency stats function - using marketData object for currency flexibility
   const getCurrencyStats = (currency) => {
@@ -199,8 +172,6 @@ const CoinMarketStats = ({ coin, loading, error }) => {
         return formatPrice(value);
       case 'percentage':
         return `${value}%`;
-      case 'price':
-        return `${value}`;
       case 'number':
       default:
         return formatNumber(value);

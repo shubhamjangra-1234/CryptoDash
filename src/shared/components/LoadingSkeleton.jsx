@@ -7,6 +7,40 @@ const LoadingSkeleton = React.memo(({
   className = "",
   height = null 
 }) => {
+  // Centered dashboard loading with spinner
+  if (type === 'dashboard') {
+    return (
+      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-card border border-border rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4">
+          <div className="flex flex-col items-center space-y-6">
+            {/* Animated Spinner */}
+            <div className="relative">
+              <div className="w-12 h-12 border-4 border-primary/20 rounded-full"></div>
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin absolute top-0"></div>
+            </div>
+            
+            {/* Loading Text */}
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-semibold text-foreground">
+                Dashboard Loading
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Please wait while we prepare your data...
+              </p>
+            </div>
+            
+            {/* Animated Dots */}
+            <div className="flex space-x-2">
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const renderTableSkeleton = () => (
     <Card className={className}>
       <CardContent className="p-0">

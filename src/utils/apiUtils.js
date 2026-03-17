@@ -27,12 +27,11 @@ export const withRetry = async (apiCall, retries = MAX_RETRIES) => {
   }
 };
 
-export const withCache = (key, apiCall) => {
+export const withCache = async (key, apiCall) => {
   const cached = cache.get(key);
   const now = Date.now();
   
   if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-    console.log(`Cache hit for ${key}`);
     return cached.data;
   }
   
@@ -42,7 +41,6 @@ export const withCache = (key, apiCall) => {
       data: result,
       timestamp: now
     });
-    console.log(`Cache set for ${key}`);
     return result;
   } catch (error) {
     cache.delete(key); // Clear cache on error
@@ -56,5 +54,4 @@ export const generateCacheKey = (prefix, ...params) => {
 
 export const clearCache = () => {
   cache.clear();
-  console.log('API cache cleared');
 };

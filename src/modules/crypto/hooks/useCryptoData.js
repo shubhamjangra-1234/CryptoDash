@@ -1,15 +1,79 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { cryptoService } from '../services/cryptoService';
 
-// Hook for fetching markets data
+// Advanced query configuration constants
+const QUERY_CONFIG = {
+  MARKETS: {
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes
+    refetchInterval: 120000, // 2 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  },
+  COIN_DETAILS: {
+    staleTime: 60000, // 1 minute
+    gcTime: 600000, // 10 minutes
+    refetchInterval: 300000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  },
+  MARKET_CHART: {
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes
+    refetchInterval: 60000, // 1 minute
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  },
+  GLOBAL_DATA: {
+    staleTime: 300000, // 5 minutes
+    gcTime: 1800000, // 30 minutes
+    refetchInterval: 600000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  },
+  SEARCH: {
+    staleTime: 180000, // 3 minutes
+    gcTime: 600000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 1,
+    retryDelay: 1000,
+  },
+  CATEGORIES: {
+    staleTime: 3600000, // 1 hour
+    gcTime: 7200000, // 2 hours
+    refetchInterval: 3600000, // 1 hour
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  },
+  EXCHANGES: {
+    staleTime: 300000, // 5 minutes
+    gcTime: 900000, // 15 minutes
+    refetchInterval: 600000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+  }
+};
+
+// Hook for fetching markets data with advanced optimization
 export const useMarkets = (params = {}) => {
   return useQuery({
     queryKey: ['markets', params],
     queryFn: () => cryptoService.getMarkets(params),
-    staleTime: 60000, // 1 minute
-    refetchInterval: 300000, // 5 minutes
+    ...QUERY_CONFIG.MARKETS,
     select: (data) => {
-      // Sort and normalize data
       return data.map(coin => ({
         id: coin.id,
         symbol: coin.symbol.toUpperCase(),
@@ -42,14 +106,13 @@ export const useMarkets = (params = {}) => {
   });
 };
 
-// Hook for fetching coin details
+// Hook for fetching coin details with optimized caching
 export const useCoinDetails = (id, currency = 'usd') => {
   return useQuery({
     queryKey: ['coinDetails', id, currency],
     queryFn: () => cryptoService.getCoinDetails(id, currency),
     enabled: !!id,
-    staleTime: 300000, // 5 minutes
-    refetchInterval: 600000, // 10 minutes
+    ...QUERY_CONFIG.COIN_DETAILS,
     select: (data) => ({
       id: data.id,
       symbol: data.symbol.toUpperCase(),
@@ -96,14 +159,13 @@ export const useCoinDetails = (id, currency = 'usd') => {
   });
 };
 
-// Hook for fetching market chart
+// Hook for fetching market chart with real-time updates
 export const useMarketChart = (id, days = 7, currency = 'usd') => {
   return useQuery({
     queryKey: ['marketChart', id, days, currency],
     queryFn: () => cryptoService.getMarketChart(id, days, currency),
     enabled: !!id,
-    staleTime: 60000, // 1 minute
-    refetchInterval: 300000, // 5 minutes
+    ...QUERY_CONFIG.MARKET_CHART,
     select: (data) => ({
       prices: data.prices.map(([timestamp, price]) => ({
         timestamp,
@@ -124,13 +186,12 @@ export const useMarketChart = (id, days = 7, currency = 'usd') => {
   });
 };
 
-// Hook for global market data
+// Hook for global market data with optimized caching
 export const useGlobalData = () => {
   return useQuery({
     queryKey: ['globalData'],
     queryFn: cryptoService.getGlobalData,
-    staleTime: 600000, // 10 minutes
-    refetchInterval: 600000, // 10 minutes
+    ...QUERY_CONFIG.GLOBAL_DATA,
     select: (data) => ({
       activeCryptocurrencies: data.data.active_cryptocurrencies,
       upcomingIcos: data.data.upcoming_icos,
@@ -151,13 +212,13 @@ export const useGlobalData = () => {
   });
 };
 
-// Hook for searching coins
+// Hook for searching coins with debounced optimization
 export const useSearch = (query) => {
   return useQuery({
     queryKey: ['search', query],
     queryFn: () => cryptoService.searchCoins(query),
     enabled: !!query && query.length >= 2,
-    staleTime: 300000, // 5 minutes
+    ...QUERY_CONFIG.SEARCH,
     select: (data) => ({
       coins: data.coins?.map(coin => ({
         id: coin.id,
@@ -182,13 +243,12 @@ export const useSearch = (query) => {
   });
 };
 
-// Hook for categories
+// Hook for categories with long-term caching
 export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: cryptoService.getCategories,
-    staleTime: 3600000, // 1 hour
-    refetchInterval: 3600000, // 1 hour
+    ...QUERY_CONFIG.CATEGORIES,
     select: (data) => data.map(category => ({
       id: category.id,
       name: category.name,
@@ -204,13 +264,12 @@ export const useCategories = () => {
   });
 };
 
-// Hook for exchanges
+// Hook for exchanges with optimized caching
 export const useExchanges = (params = {}) => {
   return useQuery({
     queryKey: ['exchanges', params],
     queryFn: () => cryptoService.getExchanges(params),
-    staleTime: 300000, // 5 minutes
-    refetchInterval: 600000, // 10 minutes
+    ...QUERY_CONFIG.EXCHANGES,
     select: (data) => data.map(exchange => ({
       id: exchange.id,
       name: exchange.name,
@@ -228,7 +287,7 @@ export const useExchanges = (params = {}) => {
   });
 };
 
-// Hook for crypto statistics (combination of multiple data sources)
+// Hook for crypto statistics with optimized queries
 export const useCryptoStats = () => {
   const { data: globalData } = useGlobalData();
   const { data: markets } = useMarkets({ per_page: 10 });
@@ -254,4 +313,67 @@ export const useTopCryptos = (limit = 10, currency = 'usd') => {
     vs_currency: currency,
     order: 'market_cap_desc',
   });
+};
+
+// Prefetch hook for important routes
+export const usePrefetchData = () => {
+  const queryClient = useQueryClient();
+
+  const prefetchCoinDetails = (id, currency = 'usd') => {
+    queryClient.prefetchQuery({
+      queryKey: ['coinDetails', id, currency],
+      queryFn: () => cryptoService.getCoinDetails(id, currency),
+      ...QUERY_CONFIG.COIN_DETAILS,
+    });
+  };
+
+  const prefetchMarketChart = (id, days = 7, currency = 'usd') => {
+    queryClient.prefetchQuery({
+      queryKey: ['marketChart', id, days, currency],
+      queryFn: () => cryptoService.getMarketChart(id, days, currency),
+      ...QUERY_CONFIG.MARKET_CHART,
+    });
+  };
+
+  const prefetchGlobalData = () => {
+    queryClient.prefetchQuery({
+      queryKey: ['globalData'],
+      queryFn: cryptoService.getGlobalData,
+      ...QUERY_CONFIG.GLOBAL_DATA,
+    });
+  };
+
+  return {
+    prefetchCoinDetails,
+    prefetchMarketChart,
+    prefetchGlobalData,
+  };
+};
+
+// Hook for invalidating queries when needed
+export const useQueryInvalidation = () => {
+  const queryClient = useQueryClient();
+
+  const invalidateMarkets = () => {
+    queryClient.invalidateQueries({ queryKey: ['markets'] });
+  };
+
+  const invalidateCoinDetails = (id, currency) => {
+    queryClient.invalidateQueries({ queryKey: ['coinDetails', id, currency] });
+  };
+
+  const invalidateMarketChart = (id, days, currency) => {
+    queryClient.invalidateQueries({ queryKey: ['marketChart', id, days, currency] });
+  };
+
+  const invalidateGlobalData = () => {
+    queryClient.invalidateQueries({ queryKey: ['globalData'] });
+  };
+
+  return {
+    invalidateMarkets,
+    invalidateCoinDetails,
+    invalidateMarketChart,
+    invalidateGlobalData,
+  };
 };

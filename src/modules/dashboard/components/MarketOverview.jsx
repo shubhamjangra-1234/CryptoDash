@@ -41,31 +41,25 @@ const MarketOverview = ({
 
   // Prepare market cap chart data from API
   const marketCapData = useMemo(() => {
-    console.log("MarketOverview data:", data);
     
     if (!data) {
-      console.log("No chart data available");
       return [];
     }
     
     // Check for historical data in API response
     if (data.historical_data && Array.isArray(data.historical_data)) {
-      console.log("Using historical data from API");
       return data.historical_data.map(item => ({
         time: item.time || item.timestamp,
         marketCap: parseFloat(item.market_cap || item.value || 0)
       }));
     }
     
-    console.log("No historical data available");
     return [];
   }, [data]);
   // Prepare market dominance data from API
   const dominanceData = useMemo(() => {
-    console.log("Dominance data structure:", data);
     
     if (!data?.data?.market_cap_percentage) {
-      console.log("No market cap percentage data available");
       return [];
     }
     
@@ -79,7 +73,6 @@ const MarketOverview = ({
       }))
       .sort((a, b) => b.value - a.value); // Sort by dominance descending
     
-    console.log("Final dominance data:", dominance);
     return dominance;
   }, [data]);
 

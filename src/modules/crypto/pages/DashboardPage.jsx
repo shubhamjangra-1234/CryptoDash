@@ -1,32 +1,116 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useCryptoStats } from '../hooks/useCryptoData';
 import GlobalStatsGrid from '../components/GlobalStatsGrid';
 import MarketsTable from '../components/MarketsTable';
 import SectionWrapper from '../../../shared/components/SectionWrapper';
 import LoadingSkeleton from '../../../shared/components/LoadingSkeleton';
 import ErrorState from '../../../shared/components/ErrorState';
+import NetworkErrorUI, { EmptyStateUI, LoadingStateUI } from '../../../components/ui/NetworkErrorUI';
 
 const DashboardPage = React.memo(() => {
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
+  
   const { 
     globalData, 
     topMarkets, 
     topGainers, 
     topLosers, 
     isLoading: statsLoading, 
-    error: statsError 
+    error: statsError,
+    refetch
   } = useCryptoStats();
 
   const handleCoinClick = (coin) => {
     // Navigate to coin detail page
     window.location.href = `/coin/${coin.id}`;
   };
-  console.log("topGainers", topGainers);
+
+  const handleRetry = useCallback(async () => {
+    if (retryCount >= 3) return;
+    
+    setIsRetrying(true);
+    try {
+      await refetch();
+      setRetryCount(prev => prev + 1);
+    } catch (error) {
+      console.error('Retry failed:', error);
+    } finally {
+      setIsRetrying(false);
+    }
+  }, [refetch, retryCount]);
+
+  // Determine error type
+  const getErrorType = (error) => {
+    if (!error) return null;
+    
+    if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
+      return 'network';
+    }
+    if (error.status >= 500) {
+      return 'server';
+    }
+    if (error.status >= 400) {
+      return 'api';
+    }
+    return 'unknown';
+  };
+
+  // Check if all data is empty
+  const hasNoData = !statsLoading && !statsError && 
+    (!globalData || Object.keys(globalData).length === 0) &&
+    (!topMarkets || topMarkets.length === 0) &&
+    (!topGainers || topGainers.length === 0) &&
+    (!topLosers || topLosers.length === 0);
+
+  // Show network error UI for major errors
+  if (statsError && getErrorType(statsError) !== 'api') {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <NetworkErrorUI 
+          type={getErrorType(statsError)}
+          onRetry={handleRetry}
+          isRetrying={isRetrying}
+          retryCount={retryCount}
+          maxRetries={3}
+        />
+      </div>
+    );
+  }
+
+  // Show empty state when no data at all
+  if (hasNoData) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="space-y-8">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Crypto Dashboard
+            </h1>
+            <p className="text-gray-600">
+              Real-time cryptocurrency market data and insights
+            </p>
+          </div>
+
+          <NetworkErrorUI 
+            type="empty"
+            onRetry={handleRetry}
+            isRetrying={isRetrying}
+            retryCount={retryCount}
+            maxRetries={3}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (statsError) {
     return (
       <div className="container mx-auto px-4 py-8">
         <ErrorState 
           error={statsError}
-          onRetry={() => window.location.reload()}
+          onRetry={handleRetry}
         />
       </div>
     );
@@ -94,9 +178,10 @@ const DashboardPage = React.memo(() => {
               ))}
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-8">
-              No gainers data available
-            </div>
+            <EmptyStateUI 
+              message="No gainers data available"
+              description="There are no top gainers to display at the moment."
+            />
           )}
         </SectionWrapper>
 
@@ -139,9 +224,10 @@ const DashboardPage = React.memo(() => {
               ))}
             </div>
           ) : (
-            <div className="text-center text-gray-500 py-8">
-              No losers data available
-            </div>
+            <EmptyStateUI 
+              message="No losers data available"
+              description="There are no top losers to display at the moment."
+            />
           )}
         </SectionWrapper>
       </div>

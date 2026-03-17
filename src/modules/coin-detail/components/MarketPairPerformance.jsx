@@ -5,19 +5,7 @@ import { formatPercentage, formatMarketCap, formatPrice } from '../utils/formatt
 import { TrendingUp, TrendingDown, Bitcoin, ArrowRight, DollarSign, Activity } from 'lucide-react';
 
 const MarketPairPerformance = ({ coin, loading, error }) => {
-  // Debug logging to see actual API data
-  console.log('MarketPairPerformance - coin data:', coin);
-  console.log('Available fields:', Object.keys(coin || {}));
-  console.log('Current price:', coin.current_price);
-  console.log('Total volume:', coin.totalVolume);
-  console.log('Market cap:', coin.marketCap);
-  console.log("Market Data ",coin.market_data);
-    console.log("fdv ",coin.market_cap_fdv_ratio);
-console.log("Market Cap Change Percentage 24h",coin.market_cap_change_percentage_24h);
-console.log("Market Cap Change 24h",coin.market_cap_change_24h);
-console.log("Market Cap Change 24h In Currency",coin.market_cap_change_24h_in_currency);
-console.log("Market Cap Change Percentage 24h In Currency",coin.market_cap_change_percentage_24h_in_currency);
-  console.log('Price change 24h:', coin.price_change_percentage_24h);
+
   if (loading) {
     return (
       <Card>

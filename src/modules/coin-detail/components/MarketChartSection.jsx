@@ -13,7 +13,6 @@ const MarketChartSection = React.memo(({
   const [chartType, setChartType] = useState('prices');
   
   
-  console.log("ChartData", chartData);
   // Handle undefined data gracefully
   if (!chartData || Object.keys(chartData).length === 0) {
     return (
