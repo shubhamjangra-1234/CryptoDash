@@ -13,13 +13,7 @@ const ChartContainer = React.memo(({
   onTimeRangeChange = null,
   className = ""
 }) => {
-  const timeRanges = [
-    { label: '24H', value: 1 },
-    { label: '7D', value: 7 },
-    { label: '30D', value: 30 },
-    { label: '90D', value: 90 },
-    { label: '1Y', value: 365 }
-  ];
+
 
   if (loading) {
     return (
@@ -65,23 +59,6 @@ const ChartContainer = React.memo(({
           <div>
             <CardTitle>{title}</CardTitle>
             {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
-          </div>
-          <div className="flex items-center gap-2">
-            {timeRange && onTimeRangeChange && (
-              <div className="flex gap-1">
-                {timeRanges.map((range) => (
-                  <Button
-                    key={range.value}
-                    variant={timeRange === range.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => onTimeRangeChange(range.value)}
-                  >
-                    {range.label}
-                  </Button>
-                ))}
-              </div>
-            )}
-            {actions}
           </div>
         </div>
       </CardHeader>

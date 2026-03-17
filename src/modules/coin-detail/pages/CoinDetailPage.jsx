@@ -67,7 +67,7 @@ const CoinDetailPage = React.memo(() => {
   }
 
   return (
-    <div className="container mx-auto p-2 space-y-6">
+    <div className="container mx-auto space-y-6">
       {/* Header Section */}
       <CoinDetailHeader
         coin={coinDetails}

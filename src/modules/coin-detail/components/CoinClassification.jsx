@@ -137,7 +137,6 @@ const CoinClassification = ({ coin, loading, error }) => {
           ) : (
             <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3 text-center">
               No hashing algorithm information available
-              <span className="block text-xs mt-1">Hashing algorithm data: {JSON.stringify(coin.hashing_algorithm)}</span>
             </div>
           )}
         </div>

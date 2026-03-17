@@ -68,38 +68,7 @@ const CoinDetailLinks = ({ coin, loading, error }) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Network Contracts */}
-        {coin.platforms && Object.keys(coin.platforms).length > 0 && (
-          <div className="space-y-4 mb-6">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Globe className="w-4 h-4" />
-              Network Contracts
-            </h4>
-            <div className="space-y-2">
-              {Object.entries(coin.platforms).slice(0, 5).map(([network, data]) => (
-                <div key={network} className="flex items-center justify-between p-3 border border-border rounded-lg bg-card">
-                  <div className="flex items-center gap-3">
-                    <span className="font-medium text-foreground">{network}</span>
-                    <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
-                      {typeof data === 'string' ? data : data.contract_address || 'N/A'}
-                    </span>
-                  </div>
-                  {data.geckoterminal_url && (
-                    <a
-                      href={data.geckoterminal_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      Explorer
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* Categories */}
         {coin.categories && coin.categories.length > 0 && (

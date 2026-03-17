@@ -3,18 +3,7 @@ import { TrendingUp, TrendingDown, Minus, Eye, ArrowUpRight, ArrowDownRight } fr
 
 const CategoryCoinsTable = ({ coins = [] }) => {
   const columns = [
-    {
-      key: 'rank',
-      title: '#',
-      sortable: false,
-      render: (value) => (
-        <div className="text-left w-8">
-          <span className="text-muted-foreground font-medium text-sm">
-            {value || '-'}
-          </span>
-        </div>
-      )
-    },
+
     {
       key: 'name',
       title: 'Coin',

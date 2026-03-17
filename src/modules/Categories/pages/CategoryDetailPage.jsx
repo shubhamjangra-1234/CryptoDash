@@ -75,10 +75,10 @@ const CategoryDetailPage = () => {
                 <Globe className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-foreground mb-2">
+                <h1 className="text-3xl font-bold text-foreground ">
                   {category.name}
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-3xl">
+                <p className="text-sm text-muted-foreground max-w-3xl">
                   {category.content || 'No description available'}
                 </p>
               </div>

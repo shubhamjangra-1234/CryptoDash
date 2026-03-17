@@ -135,38 +135,35 @@ console.log("Market Cap Change Percentage 24h In Currency",coin.market_cap_chang
           {marketData.map((market) => {
             const isPositive = (market.change24h || 0) >= 0;
             return (
-              <div key={market.pair} className="flex items-center justify-between p-4 border border-border rounded-lg bg-card hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    {market.icon}
-                    <span className="font-mono text-sm font-bold">{market.pair}</span>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground">{market.description}</div>
-                    <div className="text-xs text-muted-foreground">
-                      Vol: {formatMarketCap(market.volume24h)} • Cap: {formatMarketCap(market.marketCap)}
+              <div key={market.pair} className="p-4 border border-border rounded-lg bg-card hover:bg-muted/50 transition-colors">
+                <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-center gap-2">
+                      {market.icon}
+                      <span className="font-mono text-sm font-bold">{market.pair}</span>
+                    </div>
+                    <div className="flex flex-col items-center md:flex-row md:space-x-2">
+                      <div className="text-sm font-medium text-foreground">{market.description}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Vol: {formatMarketCap(market.volume24h)} • Cap: {formatMarketCap(market.marketCap)}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-foreground mb-1">
-                    {formatPrice(market.price)}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {isPositive ? (
-                      <TrendingUp className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <TrendingDown className="w-4 h-4 text-red-500" />
-                    )}
-                    <span className={`text-sm font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                      {isPositive ? '+' : ''}{formatPercentage(market.change24h)}
-                    </span>
-                    <Badge 
-                      variant={isPositive ? "positive" : "destructive"}
-                      className="text-xs"
-                    >
-                      {isPositive ? 'Bullish' : 'Bearish'}
-                    </Badge>
+                  <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:items-end">
+                    <div className="text-lg font-bold text-foreground">
+                      {formatPrice(market.price)}
+                    </div>
+                    <div className="flex flex-col space-y-1 md:flex-row md:space-y-0 md:items-end">
+                      <div className={`text-sm font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                        {isPositive ? '+' : ''}{formatPercentage(market.change24h)}
+                      </div>
+                      <Badge 
+                        variant={isPositive ? "positive" : "destructive"}
+                        className="text-xs"
+                      >
+                        {isPositive ? 'Bullish' : 'Bearish'}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -181,13 +178,13 @@ console.log("Market Cap Change Percentage 24h In Currency",coin.market_cap_chang
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   <strong>{coin.name}</strong> is actively traded across {marketData.length} major pairs
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   24h volume: <strong>{formatMarketCap(totalVolume)}</strong>
                 </span>
               </div>
@@ -195,13 +192,13 @@ console.log("Market Cap Change Percentage 24h In Currency",coin.market_cap_chang
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   USD pair dominates with <strong>{((coin.total_volume / totalVolume) * 100).toFixed(1)}%</strong> of total volume
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full" />
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   Market sentiment: <strong>{avgChange >= 0 ? 'Bullish' : 'Bearish'}</strong>
                 </span>
               </div>

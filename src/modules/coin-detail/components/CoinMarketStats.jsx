@@ -120,7 +120,6 @@ const CoinMarketStats = ({ coin, loading, error }) => {
       </Card>
     );
   }
-  console.log(coin.totalVolume)
   if (error) {
     return (
       <Card>
@@ -213,11 +212,11 @@ const CoinMarketStats = ({ coin, loading, error }) => {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-muted-foreground" />
+            <Activity className="w-5 h-5 text-nowrap text-muted-foreground" />
             Market Statistics
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Currency:</label>
+            <label className="text-sm hidden md:block font-medium">Currency:</label>
             <select
               value={selectedCurrency}
               onChange={(e) => handleCurrencyChange(e.target.value)}

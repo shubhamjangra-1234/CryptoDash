@@ -49,10 +49,10 @@ const Header = ({ onToggleMobileSidebar, data }) => {
           </svg>
         </Button>
 
-        {data?.gainers?.map((coin) => (
+        {data?.gainers?.slice(0, 3).map((coin) => (
           <div
             key={coin.id}
-            className="px-3 py-1 hidden md:block rounded-lg bg-green-500/10 border border-green-500/20"
+            className="px-3 py-1 hidden md:flex flex-nowrap rounded-lg bg-green-500/10 border border-green-500/20"
           >
             <span className="text-sm font-medium text-green-500">
               {coin.symbol.toUpperCase()} +{coin.change?.toFixed(2)}%

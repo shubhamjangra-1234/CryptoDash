@@ -94,13 +94,13 @@ const MarketChartSection = React.memo(({
     return (
       <div className="h-full relative">
         {/* Chart Header */}
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col gap-6 md:flex-row justify-between items-center mb-4">
           <div className="flex gap-2">
             {['prices', 'marketCaps', 'totalVolumes'].map((type) => (
               <button
                 key={type}
                 onClick={() => setChartType(type)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                className={`px-3 py-1 rounded text-nowrap text-sm font-medium transition-colors ${
                   chartType === type
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -111,25 +111,39 @@ const MarketChartSection = React.memo(({
               </button>
             ))}
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-nowrap text-gray-600">
             {getChartTypeLabel()}: {formatValue(chartDataArray[chartDataArray.length - 1]?.[1] || 0)}
           </div>
         </div>
 
         {/* Simple SVG Chart */}
-        <svg className="w-full h-48" viewBox="0 0 400 200">
+        <svg className="w-full h-[220px]" viewBox="0 0 500 220">
           {/* Grid lines */}
-          {[0, 1, 2, 3, 4].map((i) => (
-            <line
-              key={i}
-              x1="0"
-              y1={i * 40}
-              x2="400"
-              y2={i * 40}
-              stroke="#e5e7eb"
-              strokeWidth="1"
-            />
-          ))}
+          {[0, 1, 2, 3, 4].map((i) => {
+            const y = i * 40 + 20;
+            const value = minValue + (range / 4) * (4 - i);
+            return (
+              <g key={i}>
+                <line
+                  x1="80"
+                  y1={y}
+                  x2="500"
+                  y2={y}
+                  stroke="#e5e7eb"
+                  strokeWidth="1"
+                />
+                <text
+                  x="75"
+                  y={y + 4}
+                  textAnchor="end"
+                  fontSize="10"
+                  fill="#6b7280"
+                >
+                  {formatValue(value)}
+                </text>
+              </g>
+            );
+          })}
 
           {/* Chart line */}
           <polyline
@@ -138,22 +152,22 @@ const MarketChartSection = React.memo(({
             strokeWidth="2"
             points={chartDataArray.map((point, index) => {
               if (!Array.isArray(point) || point.length < 2) return '';
-              const x = (index / (chartDataArray.length - 1)) * 400;
-              const y = 200 - (((point[1] || 0) - minValue) / range) * 200;
+              const x = 80 + (index / (chartDataArray.length - 1)) * 420;
+              const y = 200 - (((point[1] || 0) - minValue) / range) * 180;
               return `${x},${y}`;
             }).filter(Boolean).join(' ')}
           />
 
-          {/* Area under the line */}
+          {/* Area under line */}
           <polygon
             fill="url(#gradient)"
             opacity="0.3"
-            points={`0,200 ${chartDataArray.map((point, index) => {
+            points={`80,200 ${chartDataArray.map((point, index) => {
               if (!Array.isArray(point) || point.length < 2) return '';
-              const x = (index / (chartDataArray.length - 1)) * 400;
-              const y = 200 - ((point[1] || 0 - minValue) / range) * 200;
+              const x = 80 + (index / (chartDataArray.length - 1)) * 420;
+              const y = 200 - ((point[1] || 0 - minValue) / range) * 180;
               return `${x},${y}`;
-            }).filter(Boolean).join(' ')} 400,200`}
+            }).filter(Boolean).join(' ')} 500,200`}
           />
 
           {/* Gradient definition */}
